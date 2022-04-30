@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Card Battle AI Board</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="board">
+      <div class="board--ai_side">
+        <div class="board--ai_actions">
+          <div class="board--ai_hp" data-id="hp"><p id="ai-hp_value">20</p></div>
+        </div>
+        <div class="hand-zone" data-side="ai"></div>
+        <div class="board--ai_deck"></div>
+      </div>
+      <div class="field-zone" data-id="ai-side">
+        <div class="card-field" data-no="0"></div>
+        <div class="card-field" data-no="1"></div>
+        <div class="card-field" data-no="2"></div>
+        <div class="card-field" data-no="3"></div>
+        <div class="card-field" data-no="4"></div>
+      </div>
+      <div class="field-zone" data-id="player-side">
+        <div class="card-field" data-no="0"></div>
+        <div class="card-field" data-no="1"></div>
+        <div class="card-field" data-no="2"></div>
+        <div class="card-field" data-no="3"></div>
+        <div class="card-field" data-no="4"></div>
+      </div>
+      <div class="board--player_side">
+        <div class="board--player_deck"></div>
+        <div class="hand-zone" data-side="player"></div>
+        <div class="board--player_actions">
+          <button id="board--player_button">Play Card</button>
+          <div class="board--player_hp" data-id="hp"><p id="player-hp_value">20</p></div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/arrow-line/dist/arrow-line.min.js"></script>
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/constants.js"></script>
+  <script src="scripts/board.js"></script>
+</html>

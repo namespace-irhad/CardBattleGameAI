@@ -1,0 +1,173 @@
+#board {
+  padding: 0;
+  margin: auto;
+  width: 80%;
+  height: 90vmin;
+  background-color: wheat;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  justify-content: space-between;
+}
+
+.field-zone {
+  background-color: blanchedalmond;
+  height: 20vmin;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-row: 1;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-items: center;
+  column-gap: 4px;
+}
+
+.hand-zone {
+  height: 20vmin;
+  width: 100%;
+  background-color: burlywood;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hand-zone img {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.19), 0 3px 3px rgba(0, 0, 0, 0.23);
+}
+
+.hand-zone--card {
+  height: 18vmin;
+  width: 13vmin;
+  margin: 2px;
+  box-sizing: border-box;
+}
+
+.hand-zone--card_active,
+.card-field--highlight {
+  outline: 2px solid #fff;
+}
+
+.card_info {
+  pointer-events: none;
+}
+
+.card-field--highlight-heal {
+  outline: 3px solid #00ff00;
+}
+
+.card-field {
+  height: 90%;
+  width: 13vmin;
+  background-color: aliceblue;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+}
+
+.card-field img {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.19), 0 3px 3px rgba(0, 0, 0, 0.23);
+}
+
+article.hand-zone--card {
+  border-radius: 10px;
+  position: relative;
+}
+.card_info.card_info--values {
+  position: absolute;
+  bottom: 3.5%;
+  left: 7.5%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8ecd1;
+  width: 80%;
+  height: 30%;
+  border: 3px solid black;
+  border-radius: 2px;
+}
+
+.card_info.card_info--values {
+  font-size: 2vmin;
+}
+
+.card--health_value::before {
+  content: '♥ ';
+}
+
+.card--attack_value::before {
+  content: '🗡';
+}
+
+.card-field--available {
+  background-color: darkseagreen;
+}
+
+.board--player_side,
+.board--ai_side {
+  background-color: burlywood;
+  box-sizing: border-box;
+  padding: 1.2rem;
+  display: flex;
+}
+
+.board--player_deck,
+.board--ai_deck {
+  position: relative;
+  background-color: darkorange;
+  height: 18vmin;
+  width: 15vh;
+  margin: 2px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+}
+
+.board--player_deck:before,
+.board--ai_deck:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  box-shadow: 0 0.0625em 0.1875em 0 rgb(0 0 0 / 10%), 0px 0.3em 10px 0.02em darkorange;
+}
+
+.board--ai_deck:before {
+  transform: rotate(180deg);
+}
+
+.board--player_actions,
+.board--ai_actions {
+  padding: 5px;
+}
+
+#board--player_button {
+  padding: 0;
+  width: 100px;
+  height: 50px;
+  font-size: 1.1rem;
+}
+
+.board--player_hp,
+.board--ai_hp {
+  display: grid;
+  place-items: center;
+  margin: auto;
+  margin-top: 2rem;
+  height: 10vmin;
+  width: 10vmin;
+  background-color: #ffcccb;
+  border-radius: 50%;
+  outline: 2px solid black;
+}
+
+#player-hp_value,
+#ai-hp_value {
+  font-size: 1.4rem;
+  pointer-events: none;
+}
