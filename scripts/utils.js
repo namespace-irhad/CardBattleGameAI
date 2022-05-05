@@ -21,3 +21,17 @@ function getOffset(el) {
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function handleCardPreview(event) {
+  const hoveredElement = event.srcElement;
+  if (!hoveredElement) return;
+
+  const cardPreview = document.querySelector('.card-preview');
+  const hoveredCard = gameCards.find((card) => card.id.toString() === hoveredElement.dataset.id);
+  cardPreview.style.backgroundImage = `url(images/${hoveredCard.imageName}.jpg)`;
+}
+
+function handlePreviewToggle() {
+  const cardPreview = document.querySelector('.card-preview');
+  cardPreview.classList.toggle('hidden');
+}

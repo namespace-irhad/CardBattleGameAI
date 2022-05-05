@@ -7,34 +7,37 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="board">
-      <div class="board--ai_side">
-        <div class="board--ai_actions">
-          <div class="board--ai_hp" data-id="hp"><p id="ai-hp_value">20</p></div>
+    <div id="game-container">
+      <div class="card-preview"></div>
+      <div id="board">
+        <div class="board--ai_side">
+          <div class="board--ai_actions">
+            <div class="board--ai_hp ripple" data-id="hp"><p id="ai-hp_value">20</p></div>
+          </div>
+          <div class="hand-zone" data-side="ai"></div>
+          <div class="board--ai_deck"></div>
         </div>
-        <div class="hand-zone" data-side="ai"></div>
-        <div class="board--ai_deck"></div>
-      </div>
-      <div class="field-zone" data-id="ai-side">
-        <div class="card-field" data-no="0"></div>
-        <div class="card-field" data-no="1"></div>
-        <div class="card-field" data-no="2"></div>
-        <div class="card-field" data-no="3"></div>
-        <div class="card-field" data-no="4"></div>
-      </div>
-      <div class="field-zone" data-id="player-side">
-        <div class="card-field" data-no="0"></div>
-        <div class="card-field" data-no="1"></div>
-        <div class="card-field" data-no="2"></div>
-        <div class="card-field" data-no="3"></div>
-        <div class="card-field" data-no="4"></div>
-      </div>
-      <div class="board--player_side">
-        <div class="board--player_deck"></div>
-        <div class="hand-zone" data-side="player"></div>
-        <div class="board--player_actions">
-          <button id="board--player_button">Play Card</button>
-          <div class="board--player_hp" data-id="hp"><p id="player-hp_value">20</p></div>
+        <div class="field-zone" data-id="ai-side">
+          <div class="card-field" data-no="0"></div>
+          <div class="card-field" data-no="1"></div>
+          <div class="card-field" data-no="2"></div>
+          <div class="card-field" data-no="3"></div>
+          <div class="card-field" data-no="4"></div>
+        </div>
+        <div class="field-zone" data-id="player-side">
+          <div class="card-field" data-no="0"></div>
+          <div class="card-field" data-no="1"></div>
+          <div class="card-field" data-no="2"></div>
+          <div class="card-field" data-no="3"></div>
+          <div class="card-field" data-no="4"></div>
+        </div>
+        <div class="board--player_side">
+          <div class="board--player_deck"></div>
+          <div class="hand-zone" data-side="player"></div>
+          <div class="board--player_actions">
+            <button id="board--player_button">Play Card</button>
+            <div class="board--player_hp ripple" data-id="hp"><p id="player-hp_value">20</p></div>
+          </div>
         </div>
       </div>
     </div>

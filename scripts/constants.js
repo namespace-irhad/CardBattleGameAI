@@ -4,6 +4,7 @@ const gameCards = [
     name: 'Mayer Leonard',
     type: 'monster',
     image: './images/field-cards/mayer.jpg',
+    imageName: 'mayer',
     value: 12,
     health: 12,
   },
@@ -12,6 +13,7 @@ const gameCards = [
     name: 'Kirkland Merrill',
     type: 'monster',
     image: './images/field-cards/kirkland.jpg',
+    imageName: 'kirkland',
     value: 10,
     health: 10,
   },
@@ -20,6 +22,7 @@ const gameCards = [
     name: 'Mullins Barnett',
     type: 'monster',
     image: './images/field-cards/mullins.jpg',
+    imageName: 'mullins',
     value: 8,
     health: 8,
   },
@@ -28,6 +31,7 @@ const gameCards = [
     name: 'Mullineaux Mccall',
     type: 'monster',
     image: './images/field-cards/mccall.jpg',
+    imageName: 'mccall',
     value: 6,
     health: 6,
   },
@@ -36,6 +40,7 @@ const gameCards = [
     name: 'Beard Mckenzie',
     type: 'monster',
     image: './images/field-cards/beard.jpg',
+    imageName: 'beard',
     value: 4,
     health: 4,
   },
@@ -44,6 +49,7 @@ const gameCards = [
     name: 'Thunder',
     type: 'spell',
     image: './images/field-cards/thunder.jpg',
+    imageName: 'thunder',
     value: 10,
   },
   {
@@ -51,6 +57,7 @@ const gameCards = [
     name: 'Fireball',
     type: 'spell',
     image: './images/field-cards/fireball.jpg',
+    imageName: 'fireball',
     value: 8,
   },
   {
@@ -58,6 +65,7 @@ const gameCards = [
     name: 'Wind Bolt',
     type: 'spell',
     image: './images/field-cards/windbolt.jpg',
+    imageName: 'windbolt',
     value: 6,
   },
   {
@@ -65,6 +73,7 @@ const gameCards = [
     name: 'Healing Hand',
     type: 'heal',
     image: './images/field-cards/healinghand.jpg',
+    imageName: 'healinghand',
     value: 6,
   },
   {
@@ -72,6 +81,7 @@ const gameCards = [
     name: 'Healing Touch',
     type: 'heal',
     image: './images/field-cards/healingtouch.jpg',
+    imageName: 'healingtouch',
     value: 4,
   },
 ];
@@ -96,4 +106,10 @@ const buttonValues = {
   startRound: 'Play Card',
   opponentRound: "Opponent's Turn",
   endRound: 'End Round',
+};
+
+const cardTypeValues = {
+  monster: 1,
+  spell: 0.8,
+  heal: 0.6,
 };

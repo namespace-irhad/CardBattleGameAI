@@ -1,17 +1,51 @@
+@font-face {
+  font-family: AvenitLTStd;
+  src: url(fonts/AvenirLTStd-Book.otf) format('opentype');
+}
+
+@font-face {
+  font-family: AvenitLTStdBlack;
+  src: url(fonts/AvenirLTStd-Black.otf) format('opentype');
+}
+
+* {
+  font-family: 'AvenitLTStd', 'Courier New', Courier, monospace;
+}
+
 #board {
   padding: 0;
   margin: auto;
   width: 80%;
   height: 90vmin;
-  background-color: wheat;
+  background-color: #f5deb3;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   justify-content: space-between;
 }
 
+.card-preview {
+  position: absolute;
+  left: 0;
+  top: 20%;
+  width: 15vw;
+  height: 44vh;
+  background-color: #f5deb3;
+  background-size: 100% 100%;
+  border: 2px solid #ae9e85;
+  border-radius: 13px;
+  transform: translateX(-95%);
+  transition: all 0.5s;
+  z-index: 1000;
+}
+
+.hidden {
+  transform: translateX(0);
+}
+
 .field-zone {
-  background-color: blanchedalmond;
+  background: url(images/board/field-pattern.png) repeat center center / cover;
+  background-size: 200px;
   height: 20vmin;
   width: 100%;
   display: grid;
@@ -26,7 +60,6 @@
 .hand-zone {
   height: 20vmin;
   width: 100%;
-  background-color: burlywood;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,6 +93,9 @@
   height: 90%;
   width: 13vmin;
   background-color: aliceblue;
+  border: 2px solid #f5deb3;
+  box-shadow: 0px 0px 22px 4px #ae9e85 inset;
+  border-radius: 10px;
   display: grid;
   place-items: center;
   font-size: 2rem;
@@ -73,6 +109,11 @@ article.hand-zone--card {
   border-radius: 10px;
   position: relative;
 }
+
+.card-field > article {
+  width: 100%;
+}
+
 .card_info.card_info--values {
   position: absolute;
   bottom: 3.5%;
@@ -106,7 +147,7 @@ article.hand-zone--card {
 
 .board--player_side,
 .board--ai_side {
-  background-color: burlywood;
+  background: url(images/board/wood-pattern.png) no-repeat center center / cover;
   box-sizing: border-box;
   padding: 1.2rem;
   display: flex;
@@ -115,14 +156,16 @@ article.hand-zone--card {
 .board--player_deck,
 .board--ai_deck {
   position: relative;
-  background-color: darkorange;
+  background: url(images/board/card-back.jpg) no-repeat center center / cover;
   height: 18vmin;
   width: 15vh;
   margin: 2px;
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  font-size: 2.5rem;
+  font-size: 5vmin;
+  color: darkorange;
+  -webkit-text-stroke: 1px #ffa144;
 }
 
 .board--player_deck:before,
@@ -155,6 +198,7 @@ article.hand-zone--card {
 
 .board--player_hp,
 .board--ai_hp {
+  position: relative;
   display: grid;
   place-items: center;
   margin: auto;
@@ -168,6 +212,74 @@ article.hand-zone--card {
 
 #player-hp_value,
 #ai-hp_value {
-  font-size: 1.4rem;
+  font-size: 3vmin;
   pointer-events: none;
+}
+
+/* https://stackoverflow.com/questions/57246887/how-to-animate-a-ripple-effect-of-a-gradient-flowing-across-a-background-image-i */
+
+.ripple {
+  --ripple-color: #ff747b;
+}
+
+.ripple:before,
+.ripple:after {
+  content: '\0020';
+
+  width: 0;
+  height: 0;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  border-radius: 100%;
+  border: 3px solid;
+  border-color: var(--ripple-color);
+  transition: border-color ease-in-out;
+
+  transform: translate(-50%, -50%);
+}
+
+.ripple:before {
+  animation: ripple-one 6.5s infinite;
+}
+.ripple:after {
+  animation: ripple-two 7s infinite;
+}
+
+@keyframes ripple-one {
+  0% {
+    width: 10%;
+    height: 10%;
+    opacity: 0.75;
+  }
+  50% {
+    width: 50%;
+    height: 50%;
+    opacity: 0;
+  }
+  100% {
+    width: 10%;
+    height: 10%;
+    opacity: 0.75;
+  }
+}
+
+@keyframes ripple-two {
+  0% {
+    width: 50%;
+    height: 50%;
+    opacity: 0.75;
+  }
+  50% {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+  100% {
+    width: 50%;
+    height: 50%;
+    opacity: 0.75;
+  }
 }

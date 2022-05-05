@@ -1,4 +1,8 @@
 const playerButtonElement = document.querySelector('#board--player_button');
+const cardPreviewElement = document.querySelector('.card-preview');
+
+cardPreviewElement.addEventListener('mouseenter', () => handlePreviewToggle());
+cardPreviewElement.addEventListener('mouseleave', () => handlePreviewToggle());
 
 function createCard(cardObject) {
   const cardElement = document.createElement('article');
@@ -39,6 +43,9 @@ function createCard(cardObject) {
   Object.assign(cardImageElement.style, { maxWidth: '100%', height: 'auto', borderRadius: '10px' });
   cardElement.appendChild(cardImageElement);
   cardElement.appendChild(cardValuesElement);
+
+  // Preview card
+  cardElement.addEventListener('mouseenter', (event) => handleCardPreview(event));
   return cardElement;
 }
 
@@ -59,6 +66,7 @@ class FieldZone {
     this.attackArrow = null;
     this.healthValue = 20;
 
+    this.rippleElement = document.querySelector(`.board--${this.type}_hp`);
     this.field = document.querySelector(`.field-zone[data-id="${type}-side"]`);
     if (this.type === gameValues.player) {
       // Player card field element
@@ -80,9 +88,17 @@ class FieldZone {
     switch (action) {
       case 'add':
         this.healthValue = Math.max(0, this.healthValue + value);
+        this.rippleElement.style.setProperty(
+          '--ripple-color',
+          this.healthValue > 80 ? '#ff9c9d' : this.healthValue > 50 ? '#de7a7c' : '#910127'
+        );
         break;
       case 'subtract':
         this.healthValue = Math.max(0, this.healthValue - value);
+        this.rippleElement.style.setProperty(
+          '--ripple-color',
+          this.healthValue > 80 ? '#ff9c9d' : this.healthValue > 50 ? '#de7a7c' : '#910127'
+        );
         break;
       default:
         break;
@@ -255,7 +271,6 @@ class FieldZone {
 
       if (e.srcElement.classList.contains('hand-zone--card_active')) {
         this.handActiveCard = cardNumber;
-        console.log('Active card: ', this.handActiveCard);
         // this.playHand(); // TODO nakon klika igra
       }
     });
@@ -285,7 +300,7 @@ class FieldZone {
   }
 
   playCardOnField(cardObject) {
-    this.cardsOnField = [...this.cardsOnField, cardObject];
+    this.cardsOnField = JSON.parse(JSON.stringify([...this.cardsOnField, cardObject]));
     const cardElement = createCard(cardObject);
     cardElement.classList.add('hand-zone--card');
 
@@ -295,8 +310,18 @@ class FieldZone {
     if (cardObject.type === gameValues.spell) {
       this.selectedPlayerCardElement = cardElement;
       this.hightlightCard(cardElement, true);
+    } else if (cardObject.type === gameValues.heal) {
+      this.selectedPlayerCardElement = cardElement;
+      this.hightlightCard(cardElement, true);
     }
   }
+  reloadDeckFromGraveyard() {
+    if (this.graveyard.length === 0) return;
+    this.deck = [...this.deck, ...this.graveyard];
+    this.deck.shuffle();
+    this.graveyard = [];
+  }
+
   // AI FUNCTIONS
   chooseCardFromHand() {
     const randomCard = this.hand[Math.floor(Math.random() * this.hand.length)]; // TODO MINIMAX
@@ -349,6 +374,7 @@ class Game {
     }
   }
   async playHand() {
+    console.log('PLAY HAND');
     if (this.getCurrentField().currentPhase === gamePhaseState.draw && this.getCurrentField().handActiveCard !== null) {
       const selectedCard = this.getCurrentField().hand[this.getCurrentField().handActiveCard];
       this.getCurrentField().hand.splice(this.getCurrentField().handActiveCard, 1);
@@ -360,7 +386,11 @@ class Game {
       this.getCurrentField().currentPhase = this.currentStage;
       playerButtonElement.innerText = buttonValues.attack;
     } else if (this.getCurrentField().currentPhase === gamePhaseState.attack) {
-      if (this.getCurrentField().selectedPlayerCardElement && this.getCurrentField().selectedOpponentElement) {
+      console.log('ATTACK PHASE');
+      if (
+        this.getCurrentField().selectedPlayerCardElement &&
+        (this.getCurrentField().selectedOpponentElement || this.getCurrentField().selectedHealCardElement)
+      ) {
         // Check if the selected card is a monster
         switch (this.getCurrentField().getSelectedPlayerCardInformation().type) {
           case gameValues.monster:
@@ -393,7 +423,22 @@ class Game {
               );
               this.aiHealthElement.firstChild.textContent = this.aiField.healthValue;
               this.playerHealthElement.firstChild.textContent = this.playerField.healthValue;
+            } else {
+              console.log('Heal monster');
+              const playerCard = this.getCurrentField().getSelectedPlayerCardInformation();
+              const cardToHeal = this.getCurrentField().getCardInformation(
+                this.getCurrentField().selectedHealCardElement
+              );
+              const healCardIndex = this.getCurrentField().cardsOnField.findIndex((obj) => obj.id === cardToHeal.id);
+              this.getCurrentField().cardsOnField[healCardIndex].health += playerCard.value;
+              this.getCurrentField().updateField();
             }
+            // Remove heal card from field
+            this.getCurrentField().cardsOnField.splice(
+              this.getCurrentField().cardsOnField.indexOf(this.getCurrentField().getSelectedPlayerCardInformation()),
+              1
+            );
+            this.getCurrentField().updateField();
             break;
           default:
             console.log('Handle default');
@@ -401,6 +446,7 @@ class Game {
         }
 
         // Update game state TODO function
+        if (this.getCurrentField().deck.length === 0) this.getCurrentField().reloadDeckFromGraveyard();
         if (this.getCurrentField().attackArrow) this.getCurrentField().attackArrow.remove();
         this.currentStage = gamePhaseState.end;
         this.getCurrentField().removeHighlight();
@@ -440,15 +486,16 @@ class Game {
 
   handleMonsterAttack() {
     console.log('Monster is targeted', this.getCurrentField().getSelectedAttackCardInformation());
-    // Get cards information
-    const playerCard = this.getCurrentField().getSelectedPlayerCardInformation();
-    const opponentCard = this.getCurrentField().getSelectedAttackCardInformation();
+    // Get cards information (deep copy)
+    const playerCard = JSON.parse(JSON.stringify(this.getCurrentField().getSelectedPlayerCardInformation()));
+    const opponentCard = JSON.parse(JSON.stringify(this.getCurrentField().getSelectedAttackCardInformation()));
+    console.log('Attacking cards', playerCard, opponentCard);
     const playerCardIndex = this.getCurrentField().cardsOnField.findIndex((obj) => obj.id === playerCard.id);
     const opponentCardIndex = this.getOpponentField().cardsOnField.findIndex((obj) => obj.id === opponentCard.id);
     // Upate hp values
     this.getCurrentField().cardsOnField[playerCardIndex].health -= opponentCard.value;
     this.getOpponentField().cardsOnField[opponentCardIndex].health -= playerCard.value;
-    console.log('Fields', this.getCurrentField(), this.getOpponentField());
+
     if (this.getCurrentField().cardsOnField[playerCardIndex].health <= 0) {
       this.getCurrentField().cardsOnField.splice(playerCardIndex, 1);
       // Reset hp
@@ -495,12 +542,13 @@ class Game {
     );
   }
   chooseAttackTarget() {
-    // const playerFieldCards = this.playerField.cardsOnField;
-    // const pickedPlayerCardIndex = Math.floor(Math.random() * playerFieldCards.length); // TODO ALGORITHM
-    // this.aiField.selectedOpponentElement = this.playerField.field.querySelector(
-    //   `.card-field[data-no="${pickedPlayerCardIndex}"]`
-    // );
-    this.aiField.selectedOpponentElement = this.playerHealthElement;
+    const playerFieldCards = this.playerField.cardsOnField;
+    const pickedPlayerCardIndex = Math.floor(Math.random() * (playerFieldCards.length + 1)); // TODO ALGORITHM
+    if (pickedPlayerCardIndex < playerFieldCards.length) {
+      this.aiField.selectedOpponentElement = this.playerField.field.querySelector(
+        `.card-field[data-no="${pickedPlayerCardIndex}"]`
+      );
+    } else this.aiField.selectedOpponentElement = this.playerHealthElement;
   }
   async runAI() {
     console.log('Round', this.roundNumber);
@@ -510,7 +558,8 @@ class Game {
     }
     // Play Card From Hand
     await sleep(1000);
-    const pickedCard = this.aiField.chooseCardFromHand();
+    //const pickedCard = this.getCurrentField().chooseCardFromHand();
+    const pickedCard = this.chooseCardUsingMinimax();
     this.getCurrentField().updateHand();
     this.aiField.playCardOnField(pickedCard);
     await sleep(1000);
@@ -538,8 +587,125 @@ class Game {
     this.getCurrentField().drawCard();
     this.playHand();
   }
-}
 
+  chooseCardUsingMinimax() {
+    let bestScore = -Infinity;
+    let bestCard = null;
+    let bestMove = null;
+    this.getCurrentField().hand.forEach((card) => {
+      if (card.picked) return;
+      card.picked = true;
+      let [score, move] = this.minimax(card, false, 0);
+      card.picked = false;
+      if (score > bestScore) {
+        bestScore = score;
+        bestCard = card;
+        bestMove = move;
+      }
+    });
+
+    console.log('Best card', bestCard, 'with score', bestScore, 'and move', bestMove);
+    this.getCurrentField().hand.splice(this.getCurrentField().hand.indexOf(bestCard), 1);
+    return bestCard;
+  }
+  minimax(card, isMaxPlayer, depth) {
+    let scores = {
+      [gameValues.player]: 10,
+      [gameValues.ai]: -10,
+    };
+    // Terminal state
+    const [result, bestMove] = this.checkWinner(card, isMaxPlayer);
+    if (result !== null) return [scores[result], bestMove];
+
+    if (isMaxPlayer) {
+      let bestScore = -Infinity;
+      let bestCard = null;
+      let bestMove = null;
+      this.getCurrentField().hand.forEach((card, index) => {
+        if (card.picked) return;
+        card.picked = true;
+        let [score, move] = this.minimax(card, false, depth + 1);
+        card.picked = false;
+        if (score > bestScore) {
+          bestScore = score;
+          bestCard = card;
+          bestMove = move;
+        }
+      });
+      return [bestScore, bestMove];
+    } else {
+      let bestScore = Infinity;
+      let bestCard = null;
+      let bestMove = null;
+      this.getOpponentField().hand.forEach((card, index) => {
+        if (card.picked) return;
+        card.picked = true;
+        let [score, move] = this.minimax(card, true, depth + 1);
+        card.picked = false;
+        if (score < bestScore) {
+          bestScore = score;
+          bestCard = card;
+          bestMove = move;
+        }
+      });
+      return [bestScore, bestMove];
+    }
+  }
+
+  checkWinner(card, maxPlayer) {
+    const currentPlayerField = maxPlayer ? this.getCurrentField() : this.getOpponentField();
+    const opponentPlayerField = maxPlayer ? this.getOpponentField() : this.getCurrentField();
+
+    const { bestMove } = this.calculateScore(card, currentPlayerField, opponentPlayerField);
+
+    if (
+      opponentPlayerField.cardsOnField.length === 0 ||
+      opponentPlayerField.cardsOnField.every((card) => card.defeated)
+    ) {
+      if (card.value >= opponentPlayerField.healthValue) {
+        console.log('Pobedio je', maxPlayer ? gameValues.player : gameValues.ai);
+        return [currentPlayerField.type, bestMove];
+      }
+    }
+    return [null, null];
+  }
+
+  calculateScore(card, playerField, opponentField) {
+    let score = 0;
+    let move = null;
+    let bestScore = 0;
+    let bestMove = null;
+
+    // Check if player card can win and survive
+    if (card.type === gameValues.monster || card.type === gameValues.spell) {
+      opponentField.hand.forEach((opponentCard) => {
+        // If player card is stronger than opponent card
+        score += card.value >= opponentCard.health ? 10 : 0;
+        score += card.health <= opponentCard.value ? -5 : 0;
+        move = opponentCard;
+        opponentCard.defeated = true;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = move;
+        }
+        score = 0;
+        move = null;
+      });
+      // Check if player can attack health directly
+      if (opponentField.cardsOnField.length === 0) {
+        bestScore = card.value * cardTypeValues[card.type];
+      }
+    } else {
+      // Heal the highest damage monster
+      bestMove = playerField.cardsOnField.reduce((prev, current) => (prev.health > current.health ? prev : current), {
+        health: 0,
+        value: 0,
+      });
+      bestScore = bestMove.value * cardTypeValues[card.type];
+    }
+    return { bestScore, bestMove };
+  }
+}
 // zone.hightlightAvailableSpace()
 const game = new Game();
 game.initialize();
