@@ -7,6 +7,7 @@ const gameCards = [
     imageName: 'mayer',
     value: 12,
     health: 12,
+    tempHealth: 12,
   },
   {
     id: 2,
@@ -16,6 +17,7 @@ const gameCards = [
     imageName: 'kirkland',
     value: 10,
     health: 10,
+    tempHealth: 10,
   },
   {
     id: 3,
@@ -25,6 +27,7 @@ const gameCards = [
     imageName: 'mullins',
     value: 8,
     health: 8,
+    tempHealth: 8,
   },
   {
     id: 4,
@@ -34,6 +37,7 @@ const gameCards = [
     imageName: 'mccall',
     value: 6,
     health: 6,
+    tempHealth: 6,
   },
   {
     id: 5,
@@ -43,6 +47,7 @@ const gameCards = [
     imageName: 'beard',
     value: 4,
     health: 4,
+    tempHealth: 4,
   },
   {
     id: 6,

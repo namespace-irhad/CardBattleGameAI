@@ -87,9 +87,6 @@ class FieldZone {
       // Opponent health element for selection
       this.aiHealthElement = document.querySelector('.board--ai_hp');
       this.aiHealthElement.addEventListener('click', this.aiCardClick.bind(this));
-
-      this.playerHealthElement = document.querySelector('.board--player_hp');
-      this.playerHealthElement.addEventListener('click', this.playerHealthClick.bind(this));
     }
   }
   updateHealth(action, value) {
@@ -183,17 +180,6 @@ class FieldZone {
       }
     }
   }
-  playerHealthClick(e) {
-    if (this.currentPhase === gamePhaseState.end) return;
-    if (this.selectedPlayerCardElement.nodeName === 'ARTICLE') {
-      const selectedCard = this.getSelectedPlayerCardInformation();
-      if (selectedCard.type === gameValues.heal) {
-        this.selectedOpponentElement = e.srcElement;
-        this.highlightAttackMove(this.selectedPlayerCardElement, this.selectedOpponentElement);
-      }
-    }
-  }
-
   getCardInformation(card) {
     return [...gameCards].find((c) => c.id.toString() === card.dataset.id);
   }
@@ -230,7 +216,6 @@ class FieldZone {
     if (e.srcElement.nodeName === 'ARTICLE') {
       if (isHealPlayed) {
         this.selectedHealCardElement = e.srcElement;
-        playerButtonElement.innerText = buttonValues.heal;
         return;
       }
       if (selectedCard && selectedCard.type === gameValues.heal) {
@@ -402,10 +387,9 @@ class Game {
       this.getCurrentField().playCardOnField(selectedCard);
 
       // Start second phase
-      if (selectedCard.type === gameValues.heal) playerButtonElement.innerText = buttonValues.heal;
-      else playerButtonElement.innerText = buttonValues.attack;
       this.currentStage = gamePhaseState.attack;
       this.getCurrentField().currentPhase = this.currentStage;
+      playerButtonElement.innerText = buttonValues.attack;
     } else if (this.getCurrentField().currentPhase === gamePhaseState.attack) {
       // Attack phase
       if (
@@ -435,8 +419,9 @@ class Game {
             }
             break;
           case gameValues.heal:
-            if (this.getCurrentField().selectedOpponentElement.dataset.id === 'hp') {
-              this.getCurrentField().updateHealth(
+            // TODO
+            if (this.getCurrentField().selectedPlayerCardElement.dataset.id === 'hp') {
+              this.getOpponentField().updateHealth(
                 'add',
                 this.getCurrentField().getSelectedPlayerCardInformation().value
               );
@@ -559,26 +544,9 @@ class Game {
       `.card-field[data-no="${pickedCardIndex}"]`
     );
   }
-  chooseAttackTarget(pickedCard, attackTarget) {
-    const currentPlayerField = this.getCurrentField();
-    const playerFieldCards = this.getOpponentField().cardsOnField;
-    console.log('Attacking', pickedCard, attackTarget);
-
-    // Attack health
-    if (!attackTarget) {
-      if (pickedCard.type === gameValues.heal && currentPlayerField.cardsOnField.length === 1) {
-        console.log('No cards on field', currentPlayerField);
-        this.aiField.selectedOpponentElement = this.getOpponentField().aiHealthElement;
-        return;
-      } else if (pickedCard.type !== gameValues.heal && playerFieldCards.length === 1) {
-        this.aiField.selectedOpponentElement = this.getOpponentField().playerHealthElement;
-        return;
-      }
-    }
-
-    const pickedPlayerCardIndex = attackTarget
-      ? playerFieldCards.findIndex((playerCard) => attackTarget.id === playerCard.id)
-      : Math.floor(Math.random() * (playerFieldCards.length + 1));
+  chooseAttackTarget() {
+    const playerFieldCards = this.playerField.cardsOnField;
+    const pickedPlayerCardIndex = Math.floor(Math.random() * (playerFieldCards.length + 1)); // TODO ALGORITHM
     if (pickedPlayerCardIndex < playerFieldCards.length) {
       this.aiField.selectedOpponentElement = this.playerField.field.querySelector(
         `.card-field[data-no="${pickedPlayerCardIndex}"]`
@@ -594,7 +562,7 @@ class Game {
     // Play Card From Hand
     await sleep(1000);
     //const pickedCard = this.getCurrentField().chooseCardFromHand();
-    const [pickedCard, pickedMove] = this.chooseCardUsingExpectiminimax();
+    const pickedCard = this.chooseCardUsingExpectiminimax();
     this.getCurrentField().updateHand();
     this.aiField.playCardOnField(pickedCard);
     await sleep(1000);
@@ -603,7 +571,7 @@ class Game {
     // Decide Attack Pattern and Play
     await sleep(1000);
     this.chooseAIFieldCard();
-    this.chooseAttackTarget(pickedCard, pickedMove);
+    this.chooseAttackTarget();
     this.aiField.highlightAttackMove(this.aiField.selectedPlayerCardElement, this.aiField.selectedOpponentElement);
     await sleep(1000);
     this.playHand();
@@ -630,17 +598,17 @@ class Game {
     let bestCard = null;
     let bestMove = null;
 
+    const availableMaxCards = [...this.getCurrentField().hand, ...this.getCurrentField().deck];
     const availableMinCards = [...this.getOpponentField().hand, ...this.getOpponentField().deck];
 
-    this.getCurrentField().hand.forEach((card, index) => {
-      console.log('Checking card', card.name);
-      this.getCurrentField().hand.splice(index, 1); // Remove card
+    availableMaxCards.forEach((card, index) => {
+      console.log('Checking card');
+      availableMaxCards.splice(index, 1); // Remove card
       this.getCurrentField().cardsOnField.push(card); // Add card to field
 
-      const availableMaxCards = [...this.getCurrentField().hand, ...this.getCurrentField().deck];
       let [score, move] = this.expectiminimax(card, availableMaxCards, availableMinCards, false, 5);
 
-      this.getCurrentField().hand.splice(index, 0, card); // Insert back card
+      availableMaxCards.splice(index, 0, card); // Insert back card
       this.getCurrentField().cardsOnField.splice(this.getCurrentField().cardsOnField.length - 1, 1); // Remove card from field
 
       if (score > bestScore) {
@@ -653,12 +621,12 @@ class Game {
     console.log('Best card', bestCard, 'with score', bestScore, 'and move', bestMove);
     const listItem = document.createElement('li');
     listItem.innerText = `Best card: ${bestCard.name} with score: ${bestScore} and move: ${
-      bestMove?.name || bestMove?.type || 'HP'
+      bestMove.name || bestMove.type
     }`;
     this.aiDecisionsConsole.appendChild(listItem);
 
     this.getCurrentField().hand.splice(this.getCurrentField().hand.indexOf(bestCard), 1);
-    return [bestCard, bestMove];
+    return bestCard;
   }
 
   expectiminimax(card, availableMaxCards, availableMinCards, isMaxPlayer, depthLimit) {
@@ -692,7 +660,7 @@ class Game {
           bestMove = move;
         }
       });
-      return [bestScore, bestMove, bestCard];
+      return [bestScore, bestMove];
     } else {
       let bestScore = Infinity;
       let bestCard = null;
@@ -711,7 +679,7 @@ class Game {
           bestMove = move;
         }
       });
-      return [bestScore, bestMove, bestCard];
+      return [bestScore, bestMove];
     }
   }
 
@@ -753,14 +721,12 @@ class Game {
 
     if (
       card.type !== gameValues.heal &&
-      (opponentPlayerField.cardsOnField.every(
-        (opponentCard) => opponentCard.defeated || opponentCard.tempHealth === 0
-      ) ||
+      (opponentPlayerField.cardsOnField.every((opponentCard) => opponentCard.defeated) ||
         opponentPlayerField.cardsOnField.length === 0)
     ) {
       if (card.value >= opponentPlayerField.tempHealthValue) {
         this.resetTempValues();
-        return [currentPlayerField.type, opponentPlayerField, null, null];
+        return [currentPlayerField.type, bestMove, null, null];
       } else {
         opponentPlayerField.tempHealthValue = Math.max(0, opponentPlayerField.tempHealthValue - card.value);
       }
@@ -777,17 +743,14 @@ class Game {
 
     // Check if player card can win and survive
     if (card.type === gameValues.monster || card.type === gameValues.spell) {
-      if (opponentField.cardsOnField.length === 0) {
-        bestMove = opponentField;
-        bestScore = (bestMove.value / 12) * cardTypeValues[card.type];
-      }
-
       opponentField.cardsOnField.forEach((opponentCard) => {
         // If player card is stronger than opponent card
         if (opponentCard.type === gameValues.monster) {
-          if (opponentCard.tempHealth <= 0 || opponentCard.health <= 0) return;
           score += card.value >= opponentCard.tempHealth || opponentCard.health ? 2 : 0;
           score += card.tempHealth || card.health <= opponentCard.value ? -1 : 0;
+          move = opponentCard;
+        } else if (opponentCard.type === gameValues.spell) {
+          score += card.tempHealth || card.health > opponentCard.value ? 2 : -1;
           move = opponentCard;
         }
         if (score > bestScore) {
@@ -796,10 +759,9 @@ class Game {
           opponentCard.defeated = true;
           heldBestOpponent = opponentCard;
 
-          if (move.type === gameValues.monster) move.tempHealth = Math.max(0, opponentCard.tempHealth - card.value);
+          if (move.type === gameValues.monster) move.tempHealth = opponentCard.tempHealth - card.value;
           bestScore = score;
           bestMove = move;
-          console.log('Picked card: ', card, move, score);
         }
         // Reset values
         score = 0;
@@ -816,14 +778,8 @@ class Game {
             }
           )
         : playerField;
-      bestMove = bestMove.health ? bestMove : playerField;
-      if (bestMove === playerField) {
-        bestMove.tempHealthValue = bestMove.tempHealthValue + card.value;
-      } else {
-        bestMove.tempHealth = bestMove.health + card.value;
-      }
-      // Calculate score
-      bestScore = +((bestMove.value || 1) / 6).toFixed(2) * cardTypeValues[card.type];
+      bestMove.tempHealth = bestMove.health + card.value;
+      bestScore = bestMove.value * cardTypeValues[card.type];
     }
     return { bestScore, bestMove };
   };

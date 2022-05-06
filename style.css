@@ -12,6 +12,10 @@
   font-family: 'AvenitLTStd', 'Courier New', Courier, monospace;
 }
 
+body {
+  overflow: hidden;
+}
+
 #board {
   padding: 0;
   margin: auto;
@@ -22,6 +26,8 @@
   flex-direction: column;
   box-sizing: border-box;
   justify-content: space-between;
+  border: 1.5px solid black;
+  box-shadow: 0 5px 15px black;
 }
 
 .card-preview {
@@ -30,13 +36,31 @@
   top: 20%;
   width: 15vw;
   height: 44vh;
-  background-color: #f5deb3;
+  background-color: #000;
   background-size: 100% 100%;
   border: 2px solid #ae9e85;
-  border-radius: 13px;
+  border-radius: 20px;
   transform: translateX(-95%);
   transition: all 0.5s;
   z-index: 1000;
+}
+
+.ai-decisions {
+  position: absolute;
+  right: 0;
+  top: 20%;
+  width: 15vw;
+  height: 44vh;
+  background-color: burlywood;
+  background-size: 100% 100%;
+  border: 2px solid #ae9e85;
+  transform: translateX(95%);
+  transition: all 0.5s;
+  z-index: 1000;
+}
+
+#console {
+  font-size: 1.5vmin;
 }
 
 .hidden {
@@ -55,6 +79,8 @@
   align-items: center;
   justify-items: center;
   column-gap: 4px;
+  border-top: 1px solid #8b7c63;
+  border-bottom: 1px solid #8b7c63;
 }
 
 .hand-zone {
@@ -157,6 +183,7 @@ article.hand-zone--card {
 .board--ai_deck {
   position: relative;
   background: url(images/board/card-back.jpg) no-repeat center center / cover;
+  border-radius: 5px;
   height: 18vmin;
   width: 15vh;
   margin: 2px;
@@ -194,6 +221,12 @@ article.hand-zone--card {
   width: 100px;
   height: 50px;
   font-size: 1.1rem;
+  background-color: rgb(167, 130, 83);
+  color: #fff;
+}
+
+#board--player_button:disabled {
+  background-color: gray;
 }
 
 .board--player_hp,
@@ -242,7 +275,7 @@ article.hand-zone--card {
 }
 
 .ripple:before {
-  animation: ripple-one 6.5s infinite;
+  animation: ripple-one 7s infinite;
 }
 .ripple:after {
   animation: ripple-two 7s infinite;
@@ -250,8 +283,8 @@ article.hand-zone--card {
 
 @keyframes ripple-one {
   0% {
-    width: 10%;
-    height: 10%;
+    width: 40%;
+    height: 40%;
     opacity: 0.75;
   }
   50% {
@@ -260,16 +293,16 @@ article.hand-zone--card {
     opacity: 0;
   }
   100% {
-    width: 10%;
-    height: 10%;
+    width: 40%;
+    height: 40%;
     opacity: 0.75;
   }
 }
 
 @keyframes ripple-two {
   0% {
-    width: 50%;
-    height: 50%;
+    width: 70%;
+    height: 70%;
     opacity: 0.75;
   }
   50% {
@@ -278,8 +311,8 @@ article.hand-zone--card {
     opacity: 0;
   }
   100% {
-    width: 50%;
-    height: 50%;
+    width: 70%;
+    height: 70%;
     opacity: 0.75;
   }
 }

@@ -31,7 +31,7 @@ function handleCardPreview(event) {
   cardPreview.style.backgroundImage = `url(images/${hoveredCard.imageName}.jpg)`;
 }
 
-function handlePreviewToggle() {
-  const cardPreview = document.querySelector('.card-preview');
+function handlePreviewToggle(ai = false) {
+  const cardPreview = ai ? document.querySelector('.ai-decisions') : document.querySelector('.card-preview');
   cardPreview.classList.toggle('hidden');
 }
