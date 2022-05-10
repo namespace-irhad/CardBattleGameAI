@@ -67,6 +67,10 @@ body {
   transform: translateX(0);
 }
 
+.hide_info {
+  visibility: hidden;
+}
+
 .field-zone {
   background: url(images/board/field-pattern.png) repeat center center / cover;
   background-size: 200px;

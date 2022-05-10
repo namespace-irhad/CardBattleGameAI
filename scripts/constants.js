@@ -116,5 +116,5 @@ const buttonValues = {
 const cardTypeValues = {
   monster: 1,
   spell: 0.8,
-  heal: 0.6,
+  heal: 0.4,
 };
